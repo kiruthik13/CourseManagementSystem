@@ -53,7 +53,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8, style={'input_type': 'password'})
     confirm_password = serializers.CharField(write_only=True, style={'input_type': 'password'})
     role = serializers.ChoiceField(
-        choices=['student', 'instructor'],
+        choices=['student', 'instructor', 'admin'],
         default='student',
         required=False,
     )
@@ -78,6 +78,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data: dict) -> User:
         role = validated_data.pop('role', User.Role.STUDENT)
+        is_admin = (role == User.Role.ADMIN)
         user = User.objects.create_user(
             email=validated_data['email'],
             password=validated_data['password'],
@@ -85,6 +86,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=validated_data.get('last_name', ''),
             phone=validated_data.get('phone', ''),
             role=role,
+            is_staff=is_admin,
+            is_superuser=is_admin,
         )
         if role == User.Role.STUDENT:
             student_id = StudentIDCounter.generate_student_id()

@@ -71,9 +71,9 @@ class RegisterView(APIView):
 
     def post(self, request):
         data = request.data.copy()
-        # Force lowercase, block admin role
+        # Force lowercase, allow student, instructor, and admin roles
         role = data.get('role', 'student').lower()
-        if role not in ('student', 'instructor'):
+        if role not in ('student', 'instructor', 'admin'):
             role = 'student'
         data['role'] = role
 

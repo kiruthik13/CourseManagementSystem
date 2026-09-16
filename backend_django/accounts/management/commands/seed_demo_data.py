@@ -19,69 +19,78 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Seeding demo data...")
 
-        # 1. Create Admin
-        admin, created_admin = User.objects.get_or_create(
-            email='admin@example.com',
-            defaults={
-                'first_name': 'System',
-                'last_name': 'Administrator',
-                'role': User.Role.ADMIN,
-                'is_staff': True,
-                'is_superuser': True,
-            }
-        )
-        if created_admin:
-            admin.set_password('Admin@12345')
-            admin.save()
-            self.stdout.write(self.style.SUCCESS("Created Admin: admin@example.com / Admin@12345"))
-        else:
-            self.stdout.write("Admin account already exists.")
-
-        # 2. Create Instructor
-        instructor, created_inst = User.objects.get_or_create(
-            email='instructor@example.com',
-            defaults={
-                'first_name': 'Dr. Robert',
-                'last_name': 'Miller',
-                'role': User.Role.INSTRUCTOR,
-            }
-        )
-        if created_inst:
-            instructor.set_password('Instructor@12345')
-            instructor.save()
-            InstructorProfile.objects.create(
-                user=instructor,
-                department='Computer Science',
-                qualification='Ph.D. in Computer Science',
-                experience_years=10,
-                bio='Specializes in distributed systems and software engineering.'
+        # 1. Create Admins
+        for email, passw in [('admin@cms.com', 'Admin@1234'), ('admin@example.com', 'Admin@12345')]:
+            admin, created_admin = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    'first_name': 'System',
+                    'last_name': 'Administrator',
+                    'role': User.Role.ADMIN,
+                    'is_staff': True,
+                    'is_superuser': True,
+                }
             )
-            self.stdout.write(self.style.SUCCESS("Created Instructor: instructor@example.com / Instructor@12345"))
-        else:
-            self.stdout.write("Instructor account already exists.")
+            if created_admin:
+                admin.set_password(passw)
+                admin.save()
+                self.stdout.write(self.style.SUCCESS(f"Created Admin: {email} / {passw}"))
+            else:
+                self.stdout.write(f"Admin account {email} already exists.")
 
-        # 3. Create Student
-        student, created_stu = User.objects.get_or_create(
-            email='student@example.com',
-            defaults={
-                'first_name': 'Alex',
-                'last_name': 'Johnson',
-                'role': User.Role.STUDENT,
-            }
-        )
-        if created_stu:
-            student.set_password('Student@12345')
-            student.save()
-            student_id = StudentIDCounter.generate_student_id()
-            StudentProfile.objects.create(
-                user=student,
-                student_id=student_id,
-                department='Computer Science',
-                year_of_study=3
+        # 2. Create Instructors
+        for email, passw, fname, lname in [
+            ('instructor1@cms.com', 'Instructor@1234', 'John', 'Doe'),
+            ('instructor@example.com', 'Instructor@12345', 'Dr. Robert', 'Miller')
+        ]:
+            instructor, created_inst = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    'first_name': fname,
+                    'last_name': lname,
+                    'role': User.Role.INSTRUCTOR,
+                }
             )
-            self.stdout.write(self.style.SUCCESS(f"Created Student: student@example.com / Student@12345 (ID: {student_id})"))
-        else:
-            self.stdout.write("Student account already exists.")
+            if created_inst:
+                instructor.set_password(passw)
+                instructor.save()
+                InstructorProfile.objects.create(
+                    user=instructor,
+                    department='Computer Science',
+                    qualification='Ph.D. in Computer Science',
+                    experience_years=10,
+                    bio='Specializes in distributed systems and software engineering.'
+                )
+                self.stdout.write(self.style.SUCCESS(f"Created Instructor: {email} / {passw}"))
+            else:
+                self.stdout.write(f"Instructor account {email} already exists.")
+
+        # 3. Create Students
+        for email, passw, fname, lname in [
+            ('student1@cms.com', 'Student@1234', 'Jane', 'Smith'),
+            ('student@example.com', 'Student@12345', 'Alex', 'Johnson')
+        ]:
+            student, created_stu = User.objects.get_or_create(
+                email=email,
+                defaults={
+                    'first_name': fname,
+                    'last_name': lname,
+                    'role': User.Role.STUDENT,
+                }
+            )
+            if created_stu:
+                student.set_password(passw)
+                student.save()
+                student_id = StudentIDCounter.generate_student_id()
+                StudentProfile.objects.create(
+                    user=student,
+                    student_id=student_id,
+                    department='Computer Science',
+                    year_of_study=3
+                )
+                self.stdout.write(self.style.SUCCESS(f"Created Student: {email} / {passw} (ID: {student_id})"))
+            else:
+                self.stdout.write(f"Student account {email} already exists.")
 
         # 4. Create Sample Courses
         c1, _ = Course.objects.get_or_create(

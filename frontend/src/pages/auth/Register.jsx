@@ -12,7 +12,7 @@ const ROLES = [
   {
     value: 'student',
     label: 'Student',
-    desc: 'Enroll in courses & track progress',
+    desc: 'Enroll & learn',
     icon: BookOpen,
     color: '#6366f1',
     gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
@@ -20,10 +20,18 @@ const ROLES = [
   {
     value: 'instructor',
     label: 'Instructor',
-    desc: 'Create & manage your courses',
+    desc: 'Create & manage',
     icon: Users,
     color: '#10b981',
     gradient: 'linear-gradient(135deg, #10b981, #059669)',
+  },
+  {
+    value: 'admin',
+    label: 'Admin',
+    desc: 'System control',
+    icon: ShieldCheck,
+    color: '#f59e0b',
+    gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
   },
 ];
 
@@ -157,14 +165,14 @@ export const Register = () => {
             Create Your Account
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem' }}>
-            Join as a Student or Instructor
+            Join as a Student, Instructor, or Admin
           </p>
         </div>
 
         {/* Role selector */}
         <div style={{ marginBottom: '1.75rem' }}>
           <label style={{ ...labelStyle, marginBottom: '0.75rem' }}>I am registering as</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
             {ROLES.map(({ value, label, desc, icon: Icon, color, gradient }) => {
               const isActive = selectedRole === value;
               return (
