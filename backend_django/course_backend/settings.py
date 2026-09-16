@@ -220,13 +220,16 @@ SIMPLE_JWT = {
 # ---------------------------------------------------------------------------
 # CORS — django-cors-headers
 # ---------------------------------------------------------------------------
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=bool)
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,https://course-management-system-xi-ten.vercel.app,https://coursemanagementsystem-ihix.onrender.com',
+    default='http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173,https://course-management-system-xi-ten.vercel.app,https://coursemanagementsystem-ihix.onrender.com',
     cast=Csv(),
 )
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https:\/\/.*\.vercel\.app$",
+    r"^http:\/\/localhost:\d+$",
+    r"^http:\/\/127\.0\.0\.1:\d+$",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
