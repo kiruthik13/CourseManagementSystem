@@ -21,7 +21,11 @@ SECRET_KEY = config(
     default='django-insecure-change-me-in-production-use-at-least-50-chars-!!!!'
 )
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='localhost,127.0.0.1,coursemanagementsystem-ihix.onrender.com,.onrender.com',
+    cast=Csv(),
+)
 
 # ---------------------------------------------------------------------------
 # Applications
@@ -218,9 +222,12 @@ SIMPLE_JWT = {
 # ---------------------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,https://course-management-system-xi-ten.vercel.app',
+    default='http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,https://course-management-system-xi-ten.vercel.app,https://coursemanagementsystem-ihix.onrender.com',
     cast=Csv(),
 )
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https:\/\/.*\.vercel\.app$",
+]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -233,6 +240,12 @@ CORS_ALLOW_HEADERS = [
     'x-csrftoken',
     'x-requested-with',
 ]
+
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://coursemanagementsystem-ihix.onrender.com,https://*.onrender.com,https://course-management-system-xi-ten.vercel.app,https://*.vercel.app',
+    cast=Csv(),
+)
 
 # ---------------------------------------------------------------------------
 # drf-spectacular — OpenAPI / Swagger

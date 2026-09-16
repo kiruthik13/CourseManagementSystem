@@ -13,6 +13,11 @@
       ]
     }
   ],
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://coursemanagementsystem-ihix.onrender.com/api"
+    }
+  },
   "env": {
     "VITE_API_URL": "https://coursemanagementsystem-ihix.onrender.com/api"
   }
