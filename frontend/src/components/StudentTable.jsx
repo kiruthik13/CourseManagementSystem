@@ -1,8 +1,9 @@
 import React from 'react';
-import { Mail, Hash, BookOpen, Calendar } from 'lucide-react';
+import { Mail, Hash, BookOpen, Calendar, Edit, Trash2 } from 'lucide-react';
 import { formatDate } from '../utils/formatters';
 
-export const StudentTable = ({ students = [], onViewDetails }) => {
+export const StudentTable = ({ students = [], onViewDetails, onEdit, onDelete }) => {
+  const hasActions = onViewDetails || onEdit || onDelete;
   return (
     <div className="table-container">
       <table className="data-table">
@@ -14,7 +15,7 @@ export const StudentTable = ({ students = [], onViewDetails }) => {
             <th>Department</th>
             <th>Year of Study</th>
             <th>Joined</th>
-            {onViewDetails && <th>Actions</th>}
+            {hasActions && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -63,11 +64,53 @@ export const StudentTable = ({ students = [], onViewDetails }) => {
                 <td style={{ fontSize: '0.85rem', color: 'var(--slate-500)' }}>
                   {formatDate(student.date_joined)}
                 </td>
-                {onViewDetails && (
+                {hasActions && (
                   <td>
-                    <button className="btn btn-secondary btn-sm" onClick={() => onViewDetails(student)}>
-                      Details
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                      {onViewDetails && (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => onViewDetails(student)}
+                          title="View Details"
+                        >
+                          Details
+                        </button>
+                      )}
+                      {onEdit && (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          style={{
+                            color: 'var(--primary-700)',
+                            borderColor: 'var(--primary-200)',
+                            background: 'var(--primary-50)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                          }}
+                          onClick={() => onEdit(student)}
+                          title="Edit Student"
+                        >
+                          <Edit size={13} /> Edit
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          style={{
+                            color: 'var(--rose-600)',
+                            borderColor: 'rgba(239, 68, 68, 0.25)',
+                            background: 'rgba(239, 68, 68, 0.05)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                          }}
+                          onClick={() => onDelete(student)}
+                          title="Delete Student"
+                        >
+                          <Trash2 size={13} /> Delete
+                        </button>
+                      )}
+                    </div>
                   </td>
                 )}
               </tr>

@@ -26,6 +26,7 @@ from .serializers import (
     UserProfileUpdateSerializer,
     InstructorProfileSerializer,
     StudentProfileSerializer,
+    StudentUpdateSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -309,6 +310,86 @@ class StudentViewSet(viewsets.ViewSet):
         if hasattr(user, 'student_profile'):
             data['profile'] = StudentProfileSerializer(user.student_profile).data
         return Response(data)
+
+    def create(self, request):
+        """Admin: create a new student."""
+        if request.user.role != 'admin':
+            return Response(
+                {'error': 'Only administrators can create student records.', 'field_errors': {}},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        serializer = StudentCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        user_data = UserSerializer(user).data
+        if hasattr(user, 'student_profile'):
+            user_data['profile'] = StudentProfileSerializer(user.student_profile).data
+        return Response(
+            {
+                'message': 'Student created successfully.',
+                'student': user_data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+    def update(self, request, pk=None, **kwargs):
+        """Admin: update a student record."""
+        if request.user.role != 'admin':
+            return Response(
+                {'error': 'Only administrators can update student records.', 'field_errors': {}},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        partial = kwargs.get('partial', False)
+        try:
+            student = User.objects.select_related('student_profile').get(pk=pk, role=User.Role.STUDENT)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Student not found.', 'field_errors': {}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        serializer = StudentUpdateSerializer(
+            student, data=request.data, partial=partial
+        )
+        serializer.is_valid(raise_exception=True)
+        updated = serializer.save()
+        updated.refresh_from_db()
+        if hasattr(updated, 'student_profile'):
+            updated.student_profile.refresh_from_db()
+
+        user_data = UserSerializer(updated).data
+        if hasattr(updated, 'student_profile'):
+            user_data['profile'] = StudentProfileSerializer(updated.student_profile).data
+        return Response(
+            {
+                'message': 'Student updated successfully.',
+                'student': user_data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    def partial_update(self, request, pk=None):
+        return self.update(request, pk=pk, partial=True)
+
+    def destroy(self, request, pk=None):
+        """Admin: delete a student record."""
+        if request.user.role != 'admin':
+            return Response(
+                {'error': 'Only administrators can delete student records.', 'field_errors': {}},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        try:
+            student = User.objects.get(pk=pk, role=User.Role.STUDENT)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Student not found.', 'field_errors': {}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        student.delete()
+        return Response(
+            {'message': 'Student deleted successfully.'},
+            status=status.HTTP_200_OK,
+        )
 
     @action(detail=False, methods=['get'], url_path='me')
     def me(self, request):

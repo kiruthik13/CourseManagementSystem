@@ -11,6 +11,21 @@ export const studentApi = {
     return response.data;
   },
 
+  createStudent: async (studentData) => {
+    const response = await apiClient.post('/students/', studentData);
+    return response.data;
+  },
+
+  updateStudent: async (id, studentData) => {
+    const response = await apiClient.patch(`/students/${id}/`, studentData);
+    return response.data;
+  },
+
+  deleteStudent: async (id) => {
+    const response = await apiClient.delete(`/students/${id}/`);
+    return response.data;
+  },
+
   getStudentMe: async () => {
     const response = await apiClient.get('/students/me/');
     return response.data;

@@ -37,6 +37,24 @@ export const ManageStudents = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
+  // Edit Modal state
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedStudentForEdit, setSelectedStudentForEdit] = useState(null);
+  const [editData, setEditData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    department: '',
+    year_of_study: 1,
+  });
+  const [editLoading, setEditLoading] = useState(false);
+
+  // Delete Modal state
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [studentToDelete, setStudentToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const loadStudents = useCallback(async () => {
     try {
       setLoading(true);
@@ -60,8 +78,8 @@ export const ManageStudents = () => {
     try {
       setCreateLoading(true);
       setServerErrors({});
-      const res = await authApi.createStudent(createData);
-      toast.success(`Student created! Assigned Student ID: ${res.profile?.student_id || 'Auto-generated'}`);
+      const res = await studentApi.createStudent(createData);
+      toast.success(`Student created! Assigned Student ID: ${res.student?.profile?.student_id || res.profile?.student_id || 'Auto-generated'}`);
       setIsCreateOpen(false);
       setCreateData({
         email: '',
@@ -89,6 +107,64 @@ export const ManageStudents = () => {
     setIsDetailsOpen(true);
   };
 
+  const handleEditClick = (student) => {
+    setSelectedStudentForEdit(student);
+    const p = student.profile || {};
+    setEditData({
+      first_name: student.first_name || '',
+      last_name: student.last_name || '',
+      email: student.email || '',
+      phone: student.phone || '',
+      department: p.department || '',
+      year_of_study: p.year_of_study || 1,
+    });
+    setServerErrors({});
+    setIsEditOpen(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedStudentForEdit) return;
+    try {
+      setEditLoading(true);
+      setServerErrors({});
+      await studentApi.updateStudent(selectedStudentForEdit.id, editData);
+      toast.success('Student details updated successfully.');
+      setIsEditOpen(false);
+      loadStudents();
+    } catch (err) {
+      console.error('Failed to update student:', err);
+      if (err.response?.data) {
+        setServerErrors(err.response.data);
+      }
+      toast.error(err.response?.data?.error || 'Failed to update student.');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleDeleteClick = (student) => {
+    setStudentToDelete(student);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!studentToDelete) return;
+    try {
+      setDeleteLoading(true);
+      await studentApi.deleteStudent(studentToDelete.id);
+      toast.success('Student account removed.');
+      setIsDeleteOpen(false);
+      setStudentToDelete(null);
+      loadStudents();
+    } catch (err) {
+      console.error('Failed to delete student:', err);
+      toast.error(err.response?.data?.error || 'Failed to remove student.');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const filteredStudents = students.filter((stu) => {
     const q = searchTerm.toLowerCase();
     const name = (stu.full_name || `${stu.first_name} ${stu.last_name}`).toLowerCase();
@@ -106,7 +182,7 @@ export const ManageStudents = () => {
         <div>
           <h2 style={{ fontSize: '1.5rem', color: 'var(--slate-900)' }}>Enrolled Student Body</h2>
           <p style={{ color: 'var(--slate-500)', fontSize: '0.875rem' }}>
-            Register new students with automatic student ID generation and view academic profiles.
+            Register, view, update, and manage student accounts and academic profiles.
           </p>
         </div>
 
@@ -147,7 +223,12 @@ export const ManageStudents = () => {
           }
         />
       ) : (
-        <StudentTable students={filteredStudents} onViewDetails={handleViewDetails} />
+        <StudentTable
+          students={filteredStudents}
+          onViewDetails={handleViewDetails}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+        />
       )}
 
       {/* Create Student Modal */}
@@ -253,6 +334,125 @@ export const ManageStudents = () => {
             </button>
           </div>
         </form>
+      </Modal>
+
+      {/* Edit Student Modal */}
+      <Modal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} title="Edit Student Profile" maxWidth="600px">
+        <form onSubmit={handleEditSubmit}>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">First Name *</label>
+              <input
+                type="text"
+                required
+                className={`form-control ${serverErrors.first_name ? 'error' : ''}`}
+                value={editData.first_name}
+                onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
+              />
+              {serverErrors.first_name && <div className="field-error">{serverErrors.first_name[0]}</div>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Last Name *</label>
+              <input
+                type="text"
+                required
+                className={`form-control ${serverErrors.last_name ? 'error' : ''}`}
+                value={editData.last_name}
+                onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
+              />
+              {serverErrors.last_name && <div className="field-error">{serverErrors.last_name[0]}</div>}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Email Address *</label>
+              <input
+                type="email"
+                required
+                className={`form-control ${serverErrors.email ? 'error' : ''}`}
+                value={editData.email}
+                onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+              />
+              {serverErrors.email && <div className="field-error">{serverErrors.email[0]}</div>}
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Phone Number</label>
+              <input
+                type="text"
+                className="form-control"
+                value={editData.phone}
+                onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Department</label>
+              <input
+                type="text"
+                placeholder="e.g. Computer Science"
+                className="form-control"
+                value={editData.department}
+                onChange={(e) => setEditData({ ...editData, department: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Year of Study (1-6)</label>
+              <input
+                type="number"
+                min="1"
+                max="6"
+                className="form-control"
+                value={editData.year_of_study}
+                onChange={(e) => setEditData({ ...editData, year_of_study: parseInt(e.target.value) || 1 })}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+            <button type="button" className="btn btn-secondary" onClick={() => setIsEditOpen(false)} disabled={editLoading}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={editLoading}>
+              {editLoading ? 'Saving Changes...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} title="Confirm Delete Student" maxWidth="440px">
+        {studentToDelete && (
+          <div>
+            <p style={{ color: 'var(--slate-700)', fontSize: '0.925rem', marginBottom: '1rem', lineHeight: '1.5' }}>
+              Are you sure you want to delete student{' '}
+              <strong>{studentToDelete.full_name || `${studentToDelete.first_name} ${studentToDelete.last_name}`}</strong>{' '}
+              ({studentToDelete.profile?.student_id || studentToDelete.email})?
+            </p>
+            <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '0.75rem', borderRadius: 'var(--radius-md)', color: 'var(--rose-700)', fontSize: '0.825rem', marginBottom: '1.25rem' }}>
+              ⚠️ Warning: This will permanently remove the student account and their course enrollments.
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsDeleteOpen(false)} disabled={deleteLoading}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                style={{ background: 'var(--rose-600)', color: '#fff', border: 'none' }}
+                onClick={handleDeleteConfirm}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? 'Deleting...' : 'Delete Student'}
+              </button>
+            </div>
+          </div>
+        )}
       </Modal>
 
       {/* Student Details Modal */}

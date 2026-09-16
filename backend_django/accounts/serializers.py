@@ -222,6 +222,44 @@ class StudentCreateSerializer(serializers.Serializer):
         return user
 
 
+class StudentUpdateSerializer(serializers.Serializer):
+    """
+    Composite serializer for updating a User + StudentProfile in one request.
+    Used by admin at PUT/PATCH /api/students/{id}/.
+    """
+    first_name = serializers.CharField(max_length=150, required=False)
+    last_name = serializers.CharField(max_length=150, required=False)
+    email = serializers.EmailField(required=False)
+    phone = serializers.CharField(max_length=30, required=False, allow_blank=True)
+    is_active = serializers.BooleanField(required=False)
+
+    department = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    year_of_study = serializers.IntegerField(min_value=1, max_value=6, required=False)
+
+    def validate_email(self, value: str) -> str:
+        normalised = value.lower()
+        user = self.instance
+        if user and User.objects.filter(email=normalised).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return normalised
+
+    def update(self, instance: User, validated_data: dict) -> User:
+        user_fields = ['first_name', 'last_name', 'email', 'phone', 'is_active']
+        profile_fields = ['department', 'year_of_study']
+
+        user_updates = {k: v for k, v in validated_data.items() if k in user_fields}
+        if user_updates:
+            for attr, value in user_updates.items():
+                setattr(instance, attr, value)
+            instance.save(update_fields=list(user_updates.keys()))
+
+        profile_updates = {k: v for k, v in validated_data.items() if k in profile_fields}
+        if profile_updates:
+            StudentProfile.objects.filter(user=instance).update(**profile_updates)
+
+        return instance
+
+
 # ---------------------------------------------------------------------------
 # Profile serializers
 # ---------------------------------------------------------------------------
