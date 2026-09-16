@@ -1,0 +1,286 @@
+{
+	"info": {
+		"_postman_id": "8f3b2a1c-9d4e-4f1a-b2c3-5d6e7f8a9b0c",
+		"name": "Course Management System API",
+		"description": "Comprehensive Postman v2.1 Collection for the Multi-Role Course Management System API.\n\nRoles: Admin, Instructor, Student.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:8000/api", "type": "string" },
+		{ "key": "access_token", "value": "", "type": "string" },
+		{ "key": "refresh_token", "value": "", "type": "string" },
+		{ "key": "course_id", "value": "1", "type": "string" },
+		{ "key": "student_id", "value": "1", "type": "string" },
+		{ "key": "instructor_id", "value": "1", "type": "string" },
+		{ "key": "enrollment_id", "value": "1", "type": "string" }
+	],
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Public Student Registration",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student.postman@example.com\",\n  \"password\": \"Password123!\",\n  \"confirm_password\": \"Password123!\",\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Student\",\n  \"phone\": \"+15550199\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/auth/register/", "host": ["{{base_url}}"], "path": ["auth", "register", ""] }
+					}
+				},
+				{
+					"name": "User Login",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student.postman@example.com\",\n  \"password\": \"Password123!\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/auth/login/", "host": ["{{base_url}}"], "path": ["auth", "login", ""] }
+					}
+				},
+				{
+					"name": "Token Refresh",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/auth/refresh/", "host": ["{{base_url}}"], "path": ["auth", "refresh", ""] }
+					}
+				},
+				{
+					"name": "Get Current User Profile (/me)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/auth/me/", "host": ["{{base_url}}"], "path": ["auth", "me", ""] }
+					}
+				},
+				{
+					"name": "User Logout (Blacklist Refresh Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/auth/logout/", "host": ["{{base_url}}"], "path": ["auth", "logout", ""] }
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Admin Operations",
+			"item": [
+				{
+					"name": "Create Instructor (Admin Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"dr.albert@example.com\",\n  \"password\": \"Password123!\",\n  \"first_name\": \"Albert\",\n  \"last_name\": \"Einstein\",\n  \"department\": \"Physics\",\n  \"qualification\": \"PhD Theoretical Physics\",\n  \"experience_years\": 15,\n  \"bio\": \"Renowned physicist teaching quantum mechanics.\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/auth/create-instructor/", "host": ["{{base_url}}"], "path": ["auth", "create-instructor", ""] }
+					}
+				},
+				{
+					"name": "Create Student (Admin Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"alice.wong@example.com\",\n  \"password\": \"Password123!\",\n  \"first_name\": \"Alice\",\n  \"last_name\": \"Wong\",\n  \"department\": \"Computer Science\",\n  \"year_of_study\": 2\n}"
+						},
+						"url": { "raw": "{{base_url}}/auth/create-student/", "host": ["{{base_url}}"], "path": ["auth", "create-student", ""] }
+					}
+				},
+				{
+					"name": "List All Students (Admin Only)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/students/", "host": ["{{base_url}}"], "path": ["students", ""] }
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Instructor Operations",
+			"item": [
+				{
+					"name": "List Faculty Instructors",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/instructors/", "host": ["{{base_url}}"], "path": ["instructors", ""] }
+					}
+				},
+				{
+					"name": "Get Instructor Courses",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/instructors/{{instructor_id}}/courses/", "host": ["{{base_url}}"], "path": ["instructors", "{{instructor_id}}", "courses", ""] }
+					}
+				},
+				{
+					"name": "Get Instructor Enrolled Students",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/instructors/{{instructor_id}}/students/", "host": ["{{base_url}}"], "path": ["instructors", "{{instructor_id}}", "students", ""] }
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Courses",
+			"item": [
+				{
+					"name": "List Courses (Paginated, Search, Filter)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/courses/?search=Computer&is_active=true&page=1", "host": ["{{base_url}}"], "path": ["courses", ""], "query": [{"key": "search", "value": "Computer"}, {"key": "is_active", "value": "true"}, {"key": "page", "value": "1"}] }
+					}
+				},
+				{
+					"name": "Create Course (Admin Only)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Quantum Computing Fundamentals\",\n  \"code\": \"PHYS301\",\n  \"description\": \"Introductory quantum algorithms and superposition.\",\n  \"credits\": 4,\n  \"duration_weeks\": 12,\n  \"instructor\": 1,\n  \"is_active\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/courses/", "host": ["{{base_url}}"], "path": ["courses", ""] }
+					}
+				},
+				{
+					"name": "Get Course Detail",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/courses/{{course_id}}/", "host": ["{{base_url}}"], "path": ["courses", "{{course_id}}", ""] }
+					}
+				},
+				{
+					"name": "Update Course (Admin or Assigned Instructor)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Quantum Computing & Information\",\n  \"credits\": 4\n}"
+						},
+						"url": { "raw": "{{base_url}}/courses/{{course_id}}/", "host": ["{{base_url}}"], "path": ["courses", "{{course_id}}", ""] }
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Enrollments",
+			"item": [
+				{
+					"name": "Student Self-Enrollment in Course",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/courses/{{course_id}}/enroll/", "host": ["{{base_url}}"], "path": ["courses", "{{course_id}}", "enroll", ""] }
+					}
+				},
+				{
+					"name": "List My Enrollments (Student / Instructor)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+						"url": { "raw": "{{base_url}}/enrollments/my-enrollments/", "host": ["{{base_url}}"], "path": ["enrollments", "my-enrollments", ""] }
+					}
+				},
+				{
+					"name": "Update Enrollment Status & Completion",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"completed\",\n  \"completion_percentage\": 100.00\n}"
+						},
+						"url": { "raw": "{{base_url}}/enrollments/{{enrollment_id}}/", "host": ["{{base_url}}"], "path": ["enrollments", "{{enrollment_id}}", ""] }
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Security & Negative Cases",
+			"item": [
+				{
+					"name": "Public Registration Role Escalation Attempt (Blocked)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"hacker@example.com\",\n  \"password\": \"Password123!\",\n  \"confirm_password\": \"Password123!\",\n  \"first_name\": \"Hacker\",\n  \"last_name\": \"Admin\",\n  \"role\": \"admin\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/auth/register/", "host": ["{{base_url}}"], "path": ["auth", "register", ""] }
+					}
+				},
+				{
+					"name": "Reuse Blacklisted Refresh Token (Rejected 401)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/auth/refresh/", "host": ["{{base_url}}"], "path": ["auth", "refresh", ""] }
+					}
+				},
+				{
+					"name": "Student Create Course Attempt (Rejected 403)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{access_token}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Hacked Course\",\n  \"code\": \"HACK101\",\n  \"credits\": 3,\n  \"duration_weeks\": 10\n}"
+						},
+						"url": { "raw": "{{base_url}}/courses/", "host": ["{{base_url}}"], "path": ["courses", ""] }
+					}
+				}
+			]
+		}
+	]
+}
