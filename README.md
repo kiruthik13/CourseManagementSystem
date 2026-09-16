@@ -7,7 +7,7 @@ A secure, tested, production-grade Course Management System built with **Django 
 | Service | URL |
 |---------|-----|
 | **Frontend (Vercel)** | [https://course-management-system-xi-ten.vercel.app](https://course-management-system-xi-ten.vercel.app) |
-| **Backend API (Render)** | *(Deploy via render.yaml — URL available after Render setup)* |
+| **Backend API (Render)** | [https://coursemanagementsystem-ihix.onrender.com/api](https://coursemanagementsystem-ihix.onrender.com/api) |
 
 ### 🔑 Demo Login Credentials
 | Role | Email | Password |

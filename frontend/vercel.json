@@ -14,6 +14,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://cms-backend.onrender.com/api"
+    "VITE_API_URL": "https://coursemanagementsystem-ihix.onrender.com/api"
   }
 }
