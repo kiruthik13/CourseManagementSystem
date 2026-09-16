@@ -2,6 +2,20 @@
 
 A secure, tested, production-grade Course Management System built with **Django 5.x REST Framework**, **PostgreSQL**, **JWT Authentication (SimpleJWT with token blacklisting)**, and a modern **React (Vite)** frontend.
 
+## 🌐 Live Deployment
+
+| Service | URL |
+|---------|-----|
+| **Frontend (Vercel)** | [https://course-management-system-xi-ten.vercel.app](https://course-management-system-xi-ten.vercel.app) |
+| **Backend API (Render)** | *(Deploy via render.yaml — URL available after Render setup)* |
+
+### 🔑 Demo Login Credentials
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | admin@cms.com | Admin@1234 |
+| **Instructor** | instructor1@cms.com | Instructor@1234 |
+| **Student** | student1@cms.com | Student@1234 |
+
 ---
 
 ## 🏛️ System Architecture
